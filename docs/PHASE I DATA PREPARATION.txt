@@ -1,0 +1,186 @@
+Executive-Sales-Report-PowerBI
+Author - Amal Mohamed M,Data Scientist
+PHASE 1 DOCUMENTATION – DATA DOWNLOAD, UNDERSTANDING, CLEANING AND DATA MODEL SETUP (UK ONLINE RETAIL II – EXECUTIVE SALES REPORT PROJECT)
+
+1. INTRODUCTION AND OBJECTIVE OF PHASE 1
+
+The first phase of this project focused on setting up the entire foundation needed for analysis: downloading the dataset, understanding its structure and business context, performing data cleaning and transformation, and building a robust data model in Power BI that would support all the later DAX measures and dashboards. Without a clean, well-modeled dataset, none of the core DAX measures, time intelligence metrics, or RFM-style analytics would produce trustworthy results. Phase 1 is therefore about creating a single, reliable version of the truth on top of the Online Retail II data.
+
+The business case is centered on a UK-based, non-store online retail company selling mainly gift-ware. The company operates primarily in the United Kingdom, but also has customers in other European countries and a few other regions. The dataset covers transactions from 01/12/2009 to 09/12/2011, so the timespan is a little over two years. The company’s management is interested in understanding trends in revenue, unit sales, customer behavior, and product performance across this period, with a particular focus on identifying the strongest quarters, the highest-performing products, and the geographic concentration of customers.
+
+The main goals of Phase 1 can be summarized as:
+
+* Acquire the Online Retail II dataset from a trusted source.
+* Understand each column and how it maps to real-world business concepts.
+* Clean and standardize the data so that obvious data quality issues do not distort metrics.
+* Create a star-schema-like data model in Power BI, including a central fact table and supporting dimension tables such as Date, Product, Orders, and Customer.
+* Validate that the cleaned model can be used to generate consistent, reversible metrics like Total Sales and Total Units, which will later be used in DAX measures.
+
+By the end of this phase, the PBIX file had a stable FactSales table, a proper Date table supporting time intelligence, and dimension tables that allowed us to slice and aggregate sales data by product, customer, and country with confidence.
+
+2. DATASET DOWNLOAD AND INITIAL EXPLORATION
+
+The dataset used in this project is the “Online Retail II” dataset, which is the improved version of the original Online Retail dataset. It was obtained from Kaggle, where it is hosted as a cleaned, structured export originally sourced from the UCI Machine Learning Repository. The dataset contains transaction-level data for a UK-based online retailer. Each row represents a line item in an invoice, rather than an entire invoice, which means that multiple rows can share the same InvoiceNo, each representing a different product purchased in that invoice.
+
+The key columns included are:
+
+* InvoiceNo: a 6-digit integral (or sometimes string-formatted) identifier uniquely assigned to each transaction (invoice). In some cases, invoice numbers that start with “C” represent cancellations or credit notes.
+* StockCode: a code uniquely assigned to each product.
+* Description: the textual description of the product.
+* Quantity: the number of units purchased for that line item.
+* InvoiceDate: the date and time when the transaction occurred.
+* UnitPrice: the price of a single unit of the given product.
+* CustomerID: an identifier for each customer.
+* Country: the country where the customer resides.
+
+These columns are sufficient to compute most core sales metrics. By multiplying Quantity by UnitPrice we can compute line-level revenue; by counting distinct InvoiceNo we can approximate order counts; by counting distinct CustomerID we can understand customer base size; and by using InvoiceDate we can analyze trends over time.
+
+The dataset was downloaded as a file (Excel or CSV). The first step after download was to verify that the file opens correctly and columns have consistent headers. Then, we loaded the dataset into Power BI using “Get Data” and inspected the first few hundred rows to confirm that:
+
+* Dates fall within the expected range (2009–2011).
+* Quantity and UnitPrice look numeric and non-empty for most rows.
+* InvoiceNo and CustomerID appear as identifiers with repeating values.
+
+This manual inspection helped to confirm that the file structure matches the description provided and that there are no immediate failures such as missing headers or completely empty columns.
+
+3. DATA IMPORT INTO POWER BI AND TYPE SETTING
+
+After confirming the dataset’s basic integrity, the file was imported into Power BI. The first critical step in Power Query was to promote the first row to headers (if not already done), and then apply appropriate data types to each column:
+
+* InvoiceNo: set to Text to avoid issues with leading zeros or any non-numeric codes such as cancellations starting with “C”.
+* StockCode: set to Text.
+* Description: set to Text.
+* Quantity: set to Whole Number.
+* InvoiceDate: set to Date/Time.
+* UnitPrice: set to Decimal Number.
+* CustomerID: set to Text (so it behaves as an ID, not numeric quantity).
+* Country: set to Text.
+
+Ensuring correct data types is critical because many operations, especially time intelligence and arithmetic aggregations, rely on Power BI understanding which fields are dates and which are numeric. For example, time intelligence functions like TOTALYTD and SAMEPERIODLASTYEAR operate on date-type columns, and sales calculations require numeric types for Quantity and UnitPrice.
+
+At this stage, the column names and types were standardized so that later DAX code could rely on consistent names such as FactSales[InvoiceNo], FactSales[StockCode], FactSales[Quantity], and FactSales[InvoiceDate]. This also helped during relationship creation, since Power BI can infer relationships more reliably when columns have appropriate types.
+
+4. DATA CLEANING: HANDLING CANCELLATIONS, NULLS, AND NOISE
+
+The dataset contains some known issues common in retail transaction data. The most important ones addressed in this phase were:
+
+4.1 Handling Cancellations
+
+A significant proportion of invoices in this dataset represent cancellations or returns. These invoices can usually be detected because their InvoiceNo starts with the letter “C”. If included without adjustment, they would subtract revenue and units from totals in ways that may not reflect the intended “net sales” analysis. In this project, the initial strategy was to filter out rows where InvoiceNo begins with “C”. This provides a clean view of successful, non-cancelled transactions.
+
+In Power Query, a Text Filter such as “Does Not Begin With ‘C’” was applied on InvoiceNo. This ensures that any credit notes or cancellation lines do not enter the FactSales table by default. This choice is consistent with the descriptive text from the executive report, which refers to “excluded cancelled orders or transactions with zero/negative quantities that could skew sales analysis”.
+
+4.2 Handling Missing Values
+
+The project also had to deal with missing values, particularly in CustomerID and Description. Incomplete CustomerID values would prevent accurate customer counts and RFM-type analysis. The approach taken was:
+
+* For CustomerID: null or empty values were grouped as “Unknown” so that revenue from these transactions was still counted in total sales, but such customers could be distinguished from known customers. This aligns with the note that null CustomerIDs were grouped into an “Unknown” category for analysis.
+* For Description: where possible, blank descriptions were checked against StockCode to see if there was a consistent mapping; however, most of the analysis for products focused on StockCode-level and non-null Description values, so lines with missing descriptions were not the primary focus of product-level KPIs.
+
+4.3 Filtering Irrelevant and Invalid Data
+
+Apart from cancellations and missing IDs, there can be rows with zero or negative quantities. Negative quantities sometimes represent returns and should be considered carefully; in this project’s initial phase, the focus was on presenting a clean view of positive sales. Therefore, rows with quantities that are clearly invalid or zero were either removed or minimized depending on the chosen logic at the Power Query stage. This is consistent with the methodology description that states: “Excluded cancelled orders or transactions with zero/negative quantities that could skew sales analysis.”
+
+4.4 Standardizing and Cleaning Text Fields
+
+Text fields like Description and Country were trimmed to remove leading and trailing spaces. Duplicate spaces inside values were cleaned where necessary. This prevents visually identical but technically different strings from appearing as separate categories in the visuals (for example, “United Kingdom” with a trailing space vs the standard “United Kingdom”).
+
+In addition, some specific products such as those labeled “Manual” required attention. The documentation notes that “Manual” stock codes represent around 3.4M in high-value sales and needed to be categorized correctly. That implies a review of whether those transactions truly represent product sales or some form of manual correction or fee.
+
+5. CREATION OF THE FACT TABLE AND CALCULATED COLUMNS
+
+After cleaning, the core transactional data was treated as the FactSales table. A new calculated column, LineTotal, was added to represent the revenue for each row:
+
+LineTotal = Quantity * UnitPrice
+
+This is the foundation of all sales metrics. Summing LineTotal across all rows in FactSales yields the Total Sales figure. According to the executive summary, this total sales value across the entire dataset is approximately 20.81 million in revenue, with about 11 million units sold in total. This high-level check confirms that the LineTotal calculation is working as expected and that filtered data (excluding cancellations) still captures the majority of operational sales.
+
+In addition, a DateOnly column was created from InvoiceDate by stripping the time portion. This field made it easier to relate the fact table to the Date dimension and allowed groupings by day, month, quarter, and year without being affected by time-of-day granularity.
+
+The result of this step was a clean FactSales table with at least the following key columns:
+
+* InvoiceNo
+* StockCode
+* Description
+* Quantity
+* UnitPrice
+* LineTotal
+* InvoiceDate (DateTime)
+* DateOnly (Date)
+* CustomerID
+* Country
+
+6. BUILDING DIMENSION TABLES (DATE, PRODUCT, ORDERS, CUSTOMER)
+
+With FactSales ready, the next step was to create dimension tables to support analysis from different angles.
+
+6.1 Date Table
+
+A dedicated Date table is absolutely required for any serious time-intelligence work in Power BI. This Date table was generated using a CALENDAR function in DAX, covering the minimum and maximum dates present in FactSales[DateOnly]. The Date table included fields such as:
+
+* Date
+* Year
+* Month Number
+* Month Name (short name, e.g., Jan, Feb)
+* Quarter
+* Year-Month (for sorting and display)
+
+The Date table was marked as a “Date table” in Power BI, ensuring that DAX functions like TOTALYTD, SAMEPERIODLASTYEAR, DATEADD, and others operate correctly. In the executive report, this is reflected in the ability to compute metrics like Sales YTD (9.82M for 2011 against 10.17M for the previous year) and aggregated yearly totals of 20.81M overall sales.
+
+6.2 Product Table
+
+A Product dimension was created, typically by selecting distinct StockCode and Description combinations from FactSales. For top-product analysis, this table allows logic like “Top 5 products by sales” to be calculated efficiently. The executive report confirms that:
+
+* “REGENCY CAKESTAND 3 TIER” leads with approximately 3.44M in sales.
+* “Manual” represents around 3.40M in sales.
+* “DOTCOM POSTAGE” contributes about 3.22M in sales.
+* Other high-volume products like “WHITE HANGING HEART” exceed 100,000 units.
+
+6.3 Orders Table
+
+An Orders table can be constructed by summarizing FactSales at the InvoiceNo level. For each InvoiceNo, total order value and total units can be computed, along with the associated CustomerID and date. This table is useful for measures such as Average Order Value (AOV). The reported AOV for the entire dataset is around 459.10, which is consistent with dividing total sales (20.81M) by the approximate number of distinct invoices.
+
+6.4 Customer Table
+
+The Customer dimension table was created by extracting unique CustomerID and Country pairs from FactSales. While RFM measures and more advanced customer analytics are part of later phases, this basic Customer table is required to count customers and analyze geographic distribution. The customer analytics report indicates that approximately 90.06% of all customers are based in the United Kingdom, which corresponds to around 964.68k (likely orders or customer instances), highlighting a heavy UK concentration.
+
+7. RELATIONSHIP CREATION AND STAR SCHEMA DESIGN
+
+The final part of Phase 1 data modeling was to connect these tables into a star schema. FactSales became the central fact table, and the relationships were created as follows:
+
+* FactSales[DateOnly] related to Date[Date], with Date as the one side, enabling time intelligence.
+* FactSales[StockCode] related to Product[StockCode].
+* FactSales[InvoiceNo] related to Orders[InvoiceNo].
+* FactSales[CustomerID] related to Customer[CustomerID].
+
+All these relationships were set as single-direction from the dimension tables to the FactSales table. This design ensures that slicers on Date, Product, and Customer correctly filter fact rows without introducing ambiguous filter paths. The executive Power BI report’s visuals, which slice by year, quarter, product, and country, confirm that these relationships behave as expected, because metrics like Total Sales, AOV, and quarterly sales numbers react correctly to changes in filters.
+
+8. BASIC VALIDATION OF THE MODEL
+
+With the star schema established, a basic set of validations was performed in this phase, even before building sophisticated DAX measures:
+
+* Summing LineTotal over all rows in FactSales produced around 20.81M total sales. This number appears consistently across the executive summary and product dashboards.
+* Summing Quantity across all rows produced approximately 11 million units sold, which matches the narrative in the report.
+* Counting distinct InvoiceNo and CustomerID gave results that lined up with expected ranges for the online retail operation (many invoices and several thousand unique customers).
+* Filtering by Country showed that the United Kingdom accounted for roughly 90% of observed activity, again consistent with the business description and the customer analytics page.
+* Using the Date table to group by year showed reasonable distributions: less than 1M in sales for 2009 (because only December data is present), around 10M for 2010, and the remainder up to a total of 20.81M in 2011, confirming the year-level breakdown.
+
+These checks ensured that the model produces stable, believable numbers that match the summarized metrics in the executive dashboard, and that there are no gross discrepancies introduced by the cleaning and modeling steps.
+
+9. SUMMARY OF PHASE 1 OUTCOMES
+
+By the end of Phase 1, the project reached a stable state in which:
+
+* The Online Retail II dataset was successfully imported and understood.
+* Major data quality issues such as cancellations, invalid quantities, and missing CustomerID were handled.
+* A clean FactSales table with LineTotal and DateOnly columns formed the core of the model.
+* Dimension tables for Date, Product, Orders, and Customer were created.
+* Relationships were set up to form a star schema, ensuring that slicing by time, product, customer, and geography works correctly.
+* The model was validated against key numbers, including:
+
+  * Total Sales: 20.81M
+  * Average Order Value: 459.10
+  * Approximate total units sold: 11M
+  * Year-level and quarter-level trends that show strong Q4 seasonality and an overall modest YoY growth of about 0.89%.
+
+This phase laid the foundation for the rest of the project. In later phases, core DAX measures are defined in detail, richer time intelligence metrics are added, and more advanced customer-related indicators such as RFM basics are built on top of this robust, validated data model.

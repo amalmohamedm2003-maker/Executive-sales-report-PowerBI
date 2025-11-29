@@ -1,0 +1,127 @@
+Executive-Sales-Report-PowerBI
+Author - Amal Mohamed M,Data Scientist
+PHASE 3: TIME INTELLIGENCE ANALYSIS, VISUAL DEVELOPMENT, TRENDS AND REPORTING INSIGHTS
+
+Phase 3 is the heart of analytics in this project. While Phase 1 established a clean data model and Phase 2 built the core measures and time-based calculations, Phase 3 is where the dashboard matured into a real business decision system. The goal of this phase was not just running DAX formulas but using them to extract meaningful patterns, behavioral signals, seasonal movement and commercial trends from the UK Online Retail II dataset. By combining the core measures created earlier with the time intelligence functions, the business analysis now began to visualize data in a form that could be interpreted with clarity. Instead of static totals, the data started speaking in motion: growth, decline, trend shifts, seasonal peaks, consistency, anomalies, country share and product contribution.
+
+This document walks through every part of Phase 3 in detail. It explains visual building, measure application, behavioral observation, period comparison logic, drill-through usage, KPI driven insights and revenue behavior. It is written in plain text so that it may be directly submitted or stored as .txt documentation without formatting loss.
+
+SECTION 1 – OBJECTIVE AND SCOPE OF PHASE 3
+
+The primary intent of Phase 3 was to use the DAX measures from Phase 2 to generate time-based analytical insights. The analysis now moved beyond totals and averages; instead it explored:
+how did sales move month to month
+which year showed highest revenue
+how customers behaved across different periods
+how seasonal patterns influenced purchasing cycles
+how product performance evolved
+which geography dominated revenue share
+what momentum existed in the last months
+
+This phase also focused on the visual structure of the Power BI report:
+executive dashboard page
+sales trend page
+product performance page
+customer distribution and drill-through page
+
+Each visual supported one truth: transforming raw data into actionable business narrative.
+
+SECTION 2 – YEAR, QUARTER AND MONTH TREND ANALYSIS
+
+Using the Date table and the DAX measures defined in Phase 2, the first visual examined year-wise sales behavior. Year slicer was placed at the top of the report along with a running Total Sales card, Total Units card and AOV card. When no filters were applied, Total Sales displayed near 20.81 million across entire dataset. When sliced individually, approximate visible values were:
+
+2009 less than 1 million (only December data exists)
+2010 roughly 10 million revenue
+2011 remaining revenue bringing cumulative past 20 million
+
+This distribution shows that 2009 cannot be used as baseline because the dataset only contains 1 month of that year. Therefore year level comparison is more meaningful when comparing 2010 and 2011. Using Sales PY and YoY% measures, the insight appears:
+
+Sales YoY% approx 11.31 percent indicates that 2011 improved noticeably over 2010.
+
+Quarter level analysis was next. A column chart was used showing Total Sales per quarter. From visual observation, quarter distribution followed:
+
+2011 Q4 peak revenue with around 3.9 million
+2010 Q4 noted close at around 3.2 million
+early quarter values of Q1 and Q2 in each year are significantly lower compared to Q4
+
+This gives insight that UK Online Retail business is strongly seasonal. The sales spike toward the last quarter may reflect holiday season demand, celebration purchase patterns or year-end gift purchases. This insight is business critical. It suggests inventory stocking must increase before Q4 each year. It also suggests increasing marketing effort at month boundaries before November.
+
+Monthly trend line visual further clarified seasonality. When Total Sales was plotted per month, peaks became clear. The highest month in the dataset appears to be December 2011, closely followed by November 2011 and January 2011. These three months form a repeating rise pattern confirming that customers purchase significantly around year end and again early next year. This answered a strategic question: When does demand rise strongly? The dataset clearly says November December January.
+
+SECTION 3 – SALES MTD, YTD, ROLLING AND PERIOD VARIATION ANALYSIS
+
+After basic time trend visuals were ready, deeper cyclical evaluation was done. Using the measures:
+
+Sales YTD
+Sales MTD
+Sales YoY%
+Sales QoQ%
+Sales MoM%
+
+the dashboard became capable of answering dynamic period questions.
+
+When viewing 2011, Sales YTD displayed approximately 9.82 million. This means if one looked at the dashboard at end of the year, almost ten million revenue was generated within the same year. Sales MTD at the moment displayed around 638K meaning that during the selected month in view, business generated that value so far. If one navigates visual to month-level granularity, MTD updates accordingly.
+
+Sales YoY% for the selected view indicated about 11 percent positive growth over the previous year. A retailer observing such metric immediately understands that business is healthy and expanding. If YoY dips, the retailer may need competitive strategy revision.
+
+Sales QoQ% analysis showed growth movement between quarters fluctuating between negative five percent decline and up to positive nineteen percent improvement. In some months, fluctuations were mild at negative six percent decrease or positive four percent increase. These signals were extracted from visual performance indicators where arrows reflect trending strength. A manager could use this to detect slowdown phases or expansion waves.
+
+Rolling sales like Last 3 Months measure displayed around 3.3 million when dataset reached peak operational activity. Rolling metrics reduce noise and help understand continuous momentum. If the three month rolling line falls continuously for several windows, business momentum weakens. If it surges, momentum strengthens. In the visuals, one could clearly track these cyclic pushes.
+
+SECTION 4 – PRODUCT PERFORMANCE ANALYSIS
+
+After time trend analytics were completed, Phase 3 moved toward product performance evaluation. A Treemap visualization was added showing top SKU sales distribution. The Treemap used Total Sales measure grouped by Product Description. From previous findings, the top product for revenue contribution was REGENCY CAKESTAND 3 TIER contributing around 3.44 million. Another product known as Manual contributed almost 3.40 million. DOTCOM POSTAGE contributed near 3.22 million. Other products such as WHITE HANGING HEART T-LIGHT HOLDER delivered strong unit counts over 100 thousand units.
+
+A horizontal bar chart visual was built displaying top N product sales. This view helped compare visually which SKUs outperform others. Additionally Total Units measure was plotted alongside revenue in another visual helping identify whether a product had high sales revenue from premium price or high sales volume from quantity movement.
+
+From reading these visuals during analysis, one key insight emerged. Regency Cake Stand drove highest sales units, likely indicating mass retail behavior. Manual drove similar revenue level but may represent manual adjustments or non physical product transactions meaning business may need categorization review. Dotcom Postage revenue near 3.22 million reflects shipping services directly billed.
+
+SECTION 5 – CUSTOMER AND COUNTRY DISTRIBUTION VISUALS
+
+Customer level analytics used the CustomerID and Country dimensions. A map visual or bar chart distribution showed that United Kingdom represented over 90 percent of activity. Exact share observed is almost 92 percent involvement on customer instance basis. Countries like EIRE, Germany and France contributed a small percent but exist. Countries like Belgium Netherlands Spain represent less than one percent each.
+
+A pie chart visual made this dominance easy to interpret. Nearly entire chart colored for UK with a tiny border representing other nations. Thus global expansion potential is huge if only domestic region heavily drives revenue.
+
+Customer metric cards displayed:
+Total Customers near 5882
+New Customers around 3398 in 2011
+Returning Customers near 836 in that year
+
+This suggested customer churn or lower retention. Most customers appear only once. This becomes a basis to introduce RFM in Phase 4.
+
+SECTION 6 – DRILL THROUGH AND MICRO LEVEL SALES BEHAVIOR
+
+A drill-through feature was added. When user right clicks on a Customer ID like 18102 and selects drill-through, they are redirected to a detailed breakdown. Based on report output that customer purchased 188340 units and generated over 608821.65 sales through 20 plus line items. Their behavior appears continuous and high order volume.
+
+This drill-through technique allows identifying VIP customers and long tail customers. Without DAX, drill-through would show raw records only. With DAX, it delivers performance insights.
+
+SECTION 7 – EXECUTIVE REPORT PAGE DEVELOPMENT
+
+Using the time intelligence metrics, sales KPIs and product visuals, first dashboard page was developed. It included:
+Total Sales value
+Year slicer
+Month slicer
+AOV card
+Rolling three month card
+Quarter trend chart
+Product ranking chart
+
+All these visuals linked through common model filters.
+
+SECTION 8 – FINAL INSIGHTS DISCOVERED IN PHASE 3
+
+From analysis it is concluded:
+
+Year 2011 drove strong revenue near 20 million cumulative.
+Quarter 4, 2011 around 3.9 million indicating heavy seasonal spike.
+November December January show repeating consumption waves.
+YoY growth about 11 percent suggests stability and strength.
+Top products contributed nearly half annual revenue.
+United Kingdom monopolizes demand with around ninety percent share.
+Monthly variation is mild while seasonal surges are strong.
+Customer base has more new buyers than repeat buyers.
+
+SECTION 9 – COMPLETION OF PHASE 3
+
+Phase 3 completes when visual dashboard reaches interpretable form and insights are verifiable. Time trend analysis stands complete. Product contribution clarity achieved. Customer geography and individual drill-through now operational.
+
+This concludes Phase 3 documentation.

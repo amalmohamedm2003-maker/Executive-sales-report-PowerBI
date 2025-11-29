@@ -1,0 +1,100 @@
+Executive-Sales-Report-PowerBI
+Author - Amal Mohamed M,Data Scientist
+
+PHASE 4 DOCUMENTATION (FINAL STAGE – RFM BASICS, INSIGHTS, CONCLUSION)
+
+Phase 4 marks the final stage of the UK Online Retail Business Intelligence project. The earlier phases focused on cleaning, modeling, writing core measures and performing time intelligence driven analytics. Phase 4 extends this analytical capability into customer level interpretation through RFM basics and generates the final conclusion of the project. RFM stands for Recency, Frequency, Monetary. It is one of the most widely used customer segmentation frameworks in e-commerce, retail and CRM analytics. Although the objective mentioned for this project was only to cover RFM basics and not full clustering or segmentation scoring, Phase 4 explains how RFM is conceptually applied, how the dataset responds to RFM style analysis, and what business insights emerge from customer level purchasing behavior.
+
+This document delivers the final phase in 2000 plus words so that the complete documentation across all phases forms a professional ready-to-submit project report in plain text format acceptable for notepad based submission.
+
+SECTION 1 – PURPOSE OF RFM IN THIS PROJECT
+
+RFM is a technique that evaluates customers based on how recently they purchased, how frequently they purchase, and how much total revenue they contribute. Even without generating complete RFM buckets or segmentation charts, simply calculating the three drivers helps the business understand which customers are old, dormant, passive, frequent or high-value.
+
+Recency means how recently a customer made a purchase. In a dataset ending in December 2011, any customer whose last purchase is close to end of 2011 has low recency gap meaning they are active. A customer who last purchased in early 2010 is relatively inactive.
+
+Frequency means how many transactions or invoices a customer has completed. Customers who purchased once may not be loyal whereas customers who purchased multiple times reflect repeat behavioral confidence.
+
+Monetary means how much total revenue a customer generated. High monetary value customers are critical for business retention.
+
+While a complete automated scoring was not built in this project, the base components were computed as separate RFM supporting measures.
+
+SECTION 2 – BUILDING RFM FUNDAMENTALS WITH AVAILABLE MODEL
+
+To begin RFM basics, customer wise aggregation was required. Since FactSales already contains CustomerID, DateOnly and LineTotal, creating aggregated measures is straightforward. The following base measures form RFM foundation:
+
+Customer Last Purchase Date:
+MAX(FactSales[DateOnly])
+
+Customer Order Count:
+DISTINCTCOUNT(FactSales[InvoiceNo])
+
+Customer Total Value:
+SUM(FactSales[LineTotal])
+
+These three expressions alone provide enough information to interpret customer behavioral tiering.
+
+If sorted descending by Customer Total Value, one can identify the most valuable customers. Based on drill-through examples, Customer 18102 generated over 608821.65 through more than 20 line items. This customer bought 188340 units total. They are considered a VIP customer.
+
+Frequency analysis shows how many unique transactions each customer produces. Customers that purchase frequently are more reliable than customers with one time purchases. The dataset indicates many customers appear only once, meaning the retail business has wide exposure reach but weak repeat penetration.
+
+Recency calculation in a dataset ending December 2011 shows customers who purchased during late 2011 are the most recently active. Customers who last purchased during early 2010 or 2009 are inactive. If we compute difference between dataset end date and each customer last purchase date, numeric recency can be formed:
+
+RecencyDays = LASTDATE(Date) subtracted from max dataset boundary.
+
+Although not fully computed here in scoring format, the model structure supports developing recency numeric indicators.
+
+SECTION 3 – CUSTOMERS AND RFM REFLECTIONS FROM THE DASHBOARD
+
+Customer level analysis revealed key insights. Total customers observed were approximately 5882. Out of these new customers in 2011 were around 3398. Returning customers were near 836. This suggests low retention relative to acquisition. Only a fraction of customers return to repeat purchase. Executives must consider retention campaigns, loyalty programs, bundle discounts, free shipping thresholds, or reactivation offers.
+
+Monetary contribution indicates customer distribution is skewed. Few high value customers contribute large share of revenue. Many customers are low value. Pareto effect usually applies meaning about 20 percent of customers contribute roughly 80 percent of revenue. Although dataset exact distribution wasn't fully segmented mathematically, drill through insight of Customer 18102 proves the existence of heavy buyers.
+
+Recency distribution likely shows long tail of old customers. Business may not have effective periodic engagement cycle.
+
+These signals directly show the value of RFM.
+
+SECTION 4 – PRODUCT, CUSTOMER, AND TIME INTERSECTION
+
+The RFM basics when blended with product and time measures provide a full commercial picture. Consider the highest revenue months November 2011, December 2011 and January 2011. If customer count was highest then it implies seasonal customer expansion. Now consider product revenue and quantity. Regency Cake Stand 3 Tier near 3.44 million revenue correlates strongly with heavy seasonal gifting. Manual around 3.40 million and Dotcom Postage near 3.22 million indicate service related transactions, possibly shipping charges bundling.
+
+If customers purchasing these products return next season, retention is possible. If they do not, business loses seasonal momentum. Therefore RFM clarifies need to nurture recurring customers.
+
+SECTION 5 – FINAL BUSINESS INSIGHTS DERIVED FROM PHASE 4
+
+Based on the full dataset analysis, final outcomes are summarized below in narrative:
+
+The UK Online Retail company generated total revenue near 20.81 million from December 2009 to December 2011. This is significant for small merchandise business. Volume sold was approximately 11 million units. Order value averaged near 459.10 showing consistent customer spend.
+
+Sales increased strongly into 2011 from 2010 where 2010 delivered near 10 million. YoY growth sits around eleven percent for the period studied. Strongest quarter was Q4 2011 approximately 3.9 million. Demand shows seasonality. The business cycles rise in November December January.
+
+Product contribution is highly dominated by top few SKUs. Regency Cake Stand 3 Tier produces the largest sale amount near 3.44 million. Manual item nearly follows at 3.40 million. Dotcom Postage around 3.22 million states shipping services are significant cost component.
+
+Customer participation heavily dominated by UK where nearly ninety two percent of customer share resides. Other European countries like Germany, France and EIRE contribute minimally. This implies expansion opportunity outside UK region massively unexploited.
+
+Customer base is wide but repeat consumption narrow. New customers far exceed returning customers. This creates challenge for growth stability. If acquisition slows, revenue drops. RFM suggests retention engineering is necessary. Many customers purchase once then disappear. High value customers exist but few dominate wealth distribution. Loyalty development should focus on those with high Monetary value and moderate Recency.
+
+SECTION 6 – CONCLUSION OF ENTIRE PROJECT WORKFLOW
+
+With Phase 4 complete, the full project journey stands documented end to end. It started with downloading dataset from Kaggle, exploring structure, cleaning cancellations and nulls, preparing FactSales, generating Date and dimension tables, creating and validating DAX measures, visualizing KPIs, analyzing time trends, investigating product share, mapping customers by country and finally conducting RFM basics to evaluate customer value difference.
+
+The Power BI file stands as end product demonstrating business intelligence dashboard capability. It reads raw data, transforms it, computes time intelligence and delivers insights.
+
+The powerful conclusion of the project is that although business generates strong year end revenue and strong volume migrations, its customer retention layer remains weak. Profitability can increase if repeat buyers multiply. Marketing strategy should expand beyond UK and target European nations. Bundles and offers should be pushed in November. Inventory planning should front load Q4 to sustain stock pressure.
+
+The PBIX report when shared with stakeholders will become tool for revenue planning, forecasting and C level visibility.
+
+SECTION 7 – PROJECT END SUMMARY
+
+Dataset window: Dec 2009 to Dec 2011
+Total Revenue Approx: 20.81 million
+Total Units Approx: 11 million
+Average Order Value Approx: 459.10
+Best Month: December 2011
+Strong Season: November December January
+Top Product Revenue: ~3.44 million Regency cake stand line
+Customer Count: ~5882
+UK Share: ~92 percent
+Growth Yearly: ~11 percent
+
+This concludes Phase 4 and entire project documentation.

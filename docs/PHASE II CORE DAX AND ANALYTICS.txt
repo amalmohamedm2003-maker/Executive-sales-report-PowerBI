@@ -1,0 +1,122 @@
+Executive-Sales-Report-PowerBI
+Author - Amal Mohamed M,Data Scientist
+
+PHASE 2: CORE DAX MEASURES DEVELOPMENT AND ANALYTICAL FOUNDATION
+
+Phase 2 of the Online Retail Power BI project focuses on creating the most essential and widely used analytical expressions in Power BI known as DAX measures. These measures represent the backbone of business calculations, insights, KPIs, performance indicators, and trend analysis used in later dashboards. While Phase 1 established how the dataset was imported, cleaned, shaped, organized, and prepared inside Power BI, Phase 2 transforms that raw structured data into numerical intelligence. This is where the business meaning begins to form from the dataset rather than merely viewing rows and columns.
+
+The objective of this phase was to write DAX measures that could correctly compute Total Sales, Total Units, Average Order Value, and other core retail metrics. These core measures were then extended into time-based measures like Sales YTD, Sales MTD, Year over Year comparison, Quarter and Month level variance. These measures turn static data into measurable trends, enabling decision-driven analytics instead of passive reporting.
+
+1. Transition from Data Model to Measures
+
+After Phase 1 concluded, the FactSales table contained key columns like InvoiceNo, StockCode, Quantity, UnitPrice, and most importantly LineTotal which represented revenue for each transaction line. This LineTotal column is the fundamental metric upon which Total Sales is computed. The dimension tables for Date, Product, Orders, and Customer were also ready by this time. Therefore, Power BI had all the structural components needed; however, without DAX measures the model remained silent. It had potential but not yet expression.
+
+This phase begins by creating fundamental measures. The first and most important metric created was Total Sales. The formula used was:
+
+Total Sales = SUM(FactSales[LineTotal])
+
+This measure simply sums the revenue of all products sold. When this measure was placed in a Card visual without filters, the value displayed approximated 20.81 million in total revenue. This number reflects the combined sales from late 2009 through end of 2011 after removing cancelled transactions which were excluded in Phase 1. This measure can be sliced by Date, Year, Month, StockCode, Country, CustomerID, or any dimension in the model.
+
+The second core measure was Total Units. This is defined as:
+
+Total Units = SUM(FactSales[Quantity])
+
+This measure counts the number of units sold across the complete dataset. Based on Power BI report output, this value was approximately 11 million units sold over the two year period. The valid range of the data is from December 2009 until December 2011. Most of the volume was observed in 2011 where approximately 60 percent of total units occurred. The year 2010 represented the second largest block of volume, while 2009 captures only the final month of that year.
+
+With Total Sales and Total Units defined, the next logical metric created was Average Order Value also known as AOV. This metric helps identify how much revenue is generated per order on average. The formula used was:
+
+AOV = DIVIDE([Total Sales], DISTINCTCOUNT(FactSales[InvoiceNo]))
+
+This measure divides total revenue by total invoice count. When filtered for the entire dataset, Power BI displayed an AOV value close to 459.10. This means that on average each customer transaction generated approximately 460 units of currency. AOV is one of the most important profitability metrics in retail analytics. If AOV increases, revenue grows without requiring an increase in the number of customers. It directly reflects consumer buying depth.
+
+The next primary measure created was Net Sales. In the final model, cancellations were filtered out, meaning Net Sales and Total Sales were functionally the same. However, the possibility remains for future expansion where Net Sales accounts for returns or discount adjustments. Even though returns were filtered out, the Net Sales measure is valuable as a placeholder for expansion in later advanced phases.
+
+By this point, the dataset contained foundational metrics: revenue, quantity, order count, and AOV. These metrics alone provide enough information to build basic dashboards like Top Selling Products, Sales by Country, or Month wise Sales. However, the business value increases drastically when measures begin to incorporate historical comparison, trends, timelines, period-over-period growth, and other time-intelligence logic. Time intelligence is the second part of Phase 2.
+
+2. Time Based Measure Layer Construction
+
+The most powerful aspect of DAX is time intelligence. It allows measurement across years, quarters, months, seasons, and rolling periods. To build time intelligence, the Date table created in Phase 1 was marked as a Date table. This step allowed access to advanced functions like SAMEPERIODLASTYEAR, TOTALYTD, DATESMTD, and DATEADD.
+
+The first time intelligence measure built was Sales YTD:
+
+Sales YTD = TOTALYTD([Total Sales], 'Date'[Date])
+
+This measure adds up revenue cumulatively from January 1st until the end of the current date context. For example, if sliced on December 2011 the value displayed was approximately 9.82 million for the year. If sliced at mid-year, it would display a smaller value. Year-to-date analysis is critical for monthly boardrooms where stakeholders ask, "How much have we generated so far this year compared to last year?"
+
+The next measure was Sales MTD, representing month to date sales:
+
+Sales MTD = TOTALMTD([Total Sales], 'Date'[Date])
+
+For the month example shown in the Power BI dashboard screenshot, Sales MTD displayed nearly 638.81K. This means that up to the current visible month, the organization has generated 638 thousand in revenue. Tracking MTD values allows monthly performance monitoring without waiting for the month to end.
+
+Then we built the Sales PY measure for previous year:
+
+Sales PY = CALCULATE([Total Sales], SAMEPERIODLASTYEAR('Date'[Date]))
+
+This is one of the most important comparison measures in business performance. It shows revenue during the same period but in the prior year. Using this measure allows productivity evaluation. In the Year view of the Power BI dashboards, 2010 revenue displayed approximately 10.17 million. Then for 2011 revenue displayed approximately 20.81 million. By comparing the two years, growth percentage is easily derived.
+
+That leads to the next measure:
+
+Sales YoY % = DIVIDE([Total Sales] - [Sales PY], [Sales PY])
+
+This measure shows year over year growth in percentage form. The result was approximately +11.31% growth overall comparing recent windows. This percentage tells executives that the business improved meaningfully over historical levels. Strategic planning decisions for inventory, supplier negotiation, or marketing push often depend on such relative improvement.
+
+Another important measure was Sales QoQ % or quarter over quarter growth:
+
+Sales QoQ % = CALCULATE([Total Sales], DATEADD('Date'[Date], -1, QUARTER))
+
+And later turned into a variance percent calculation. In the dashboard results, QoQ varied between -0.05 and +0.19 depending on filter. This means some quarters slightly underperformed, some improved. Similarly, MoM variation existed around the -0.06 to +0.04 range.
+
+Next came a rolling window measure:
+
+Sales Last 3 Months = CALCULATE([Total Sales], DATESINPERIOD('Date'[Date], MAX('Date'[Date]), -3, MONTH))
+
+This measure helps detect momentum. When three-month totals are increasing, the retail business is accelerating. When they drop repeatedly, it's slowing. Visuals confirmed that rolling 3-month sales peaked at approximately 3.30 million during high demand quarters.
+
+3. Testing and Validating Measures
+
+Once the measures were created, they needed validation. This step is critical because unvalidated DAX can produce misleading insights. Total Sales values were checked against:
+
+Sum of Quantity * UnitPrice
+Visual totals for each year
+Card values versus table totals
+
+Total Units was checked by comparing total row sums against visualization confirmations. Orders were validated by checking DISTINCTCOUNT InvoiceNo in multiple contexts. If results matched exactly in multiple filtered slices, it proved model integrity.
+
+YoY was validated by drilling into two full comparable years. If 2010 minus 2009 reflected the correct difference and percent matched, the calculation was accepted.
+
+Rolling metrics were validated through slider movement. When dates were adjusted to a narrow month range, the calculation collapsed accordingly.
+
+Sales MTD and YTD values were validated by applying date filters manually. If month slices reset MTD and extended YTD naturally, this confirmed correct functioning.
+
+By this point, measures operated cleanly and accurately.
+
+4. Business Insights Derived From Measures
+
+Using only the core DAX measures developed so far, the following numerical insights were discovered from the dataset:
+
+Total revenue across 2009 to 2011 was around 20.81 million.
+Average Order Value across the period was around 459.10, showing consistent basket spend.
+Total units sold were roughly around 11 million, showing high consumption volume.
+Year-wise revenue distribution:
+2009 contributed less than 1 million, because only December data was recorded.
+2010 contributed approximately 10 million, establishing baseline demand.
+2011 contributed under 10 million additional revenue, bringing total past 20 million.
+Sales peaked strongly in Q4 2011 near 3.9 million with noticeable seasonal impact.
+The top month in sales was believed to be December 2011, based on card values and chart peaks.
+Sales varied YoY approximately by 11 percent positive.
+Quarter-on-quarter fluctuation appeared between -5 percent decline and +19 percent growth.
+Month-on-month changes appeared within a mild -6 to +4 percent window.
+
+These values build a strong understanding of how revenue progressed across the time period.
+
+5. Completion of Phase 2
+
+Phase 2 concluded once all measures were validated and visuals correctly displayed real results. Completed work included:
+
+Definition of base metrics
+Definition of time-aware calculations
+Testing across multiple filters
+Derivation of performance conclusions
+
+These measures become building blocks for Phase 3 where deeper time-series analysis and dashboard visualizations begin.
